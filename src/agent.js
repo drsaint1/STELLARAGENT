@@ -307,12 +307,15 @@ async function x402ApiCall(endpoint, body, httpClient, onEvent) {
     initialResp.data
   );
 
-  // Extract cost from payment requirements
+  // Extract cost from payment requirements (amount is in USDC stroops, 7 decimals)
   let cost = 0;
   const reqs = paymentRequired?.paymentRequirements || [];
   if (reqs.length > 0) {
     const req = reqs[0];
-    cost = parseFloat(req.maxAmountRequired || req.amount || "0") / 1e7; // Convert from stroops
+    const rawAmount = parseFloat(req.maxAmountRequired || req.amount || "0");
+    // If amount > 1000, it's in stroops (smallest units) — divide by 1e7 to get USDC
+    // If amount < 1 (e.g. "0.01"), it's already in human-readable USDC
+    cost = rawAmount > 100 ? rawAmount / 1e7 : rawAmount;
   }
 
   // Step 3: Create payment payload and encode as headers

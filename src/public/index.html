@@ -661,6 +661,7 @@
         <button onclick="createTestnetWallet(event)">Create Testnet Wallet</button>
       </div>
       <p style="font-size: 12px; color: var(--muted);">Connect your Freighter browser extension or create a testnet wallet to get started.</p>
+      <p style="font-size: 11px; color: var(--muted); margin-top: 6px;">x402 payments use <strong style="color: var(--green);">USDC</strong> (sub-cent micropayments). XLM is only for network gas fees.</p>
     </div>
     <div id="walletConnected" class="hidden">
       <div class="wallet-info">
@@ -713,7 +714,7 @@
     <h2>API Keys & Protocol Status</h2>
     <div class="api-status" id="apiStatus">
       <div class="api-dot"><span class="dot dot-red" id="dotGemini"></span> Gemini</div>
-      <div class="api-dot"><span class="dot dot-red" id="dotBrave"></span> Brave Search</div>
+      <div class="api-dot"><span class="dot dot-red" id="dotSearch"></span> Web Search</div>
       <div class="api-dot"><span class="dot dot-red" id="dotNews"></span> NewsAPI</div>
       <div class="api-dot hidden" id="dotReplicateWrap"><span class="dot dot-red" id="dotReplicate"></span> Replicate</div>
       <div class="api-dot"><span class="dot dot-red" id="dotX402"></span> x402</div>
@@ -729,8 +730,8 @@
     </div>
     <div class="budget-row">
       <label>Budget:</label>
-      <input type="range" id="budgetSlider" min="0.05" max="2.00" value="0.50" step="0.05" oninput="updateBudget()" />
-      <div class="budget-val" id="budgetVal">$0.50 USDC</div>
+      <input type="range" id="budgetSlider" min="0.01" max="0.50" value="0.10" step="0.01" oninput="updateBudget()" />
+      <div class="budget-val" id="budgetVal">$0.10 USDC</div>
     </div>
     <div class="wallets hidden" id="walletInfo"></div>
   </div>
@@ -945,7 +946,7 @@ async function loadApiStatus() {
     serverPublicKey = data.serverWallet;
 
     document.getElementById('dotGemini').className = 'dot ' + (data.keys.gemini ? 'dot-green' : 'dot-red');
-    document.getElementById('dotBrave').className = 'dot ' + (data.keys.brave ? 'dot-green' : 'dot-red');
+    document.getElementById('dotSearch').className = 'dot ' + (data.keys.search ? 'dot-green' : 'dot-red');
     document.getElementById('dotNews').className = 'dot ' + (data.keys.newsapi ? 'dot-green' : 'dot-red');
     document.getElementById('dotReplicate').className = 'dot ' + (data.keys.replicate ? 'dot-green' : 'dot-red');
     document.getElementById('dotX402').className = 'dot ' + (data.x402 ? 'dot-green' : 'dot-red');

@@ -49,13 +49,15 @@ const PRICES = {
 };
 
 // Helper to create a route config with x402 PaymentOption
+// Pass price as Money (string like "0.01") — the ExactStellarScheme.parsePrice()
+// converts this to proper USDC stroops (0.01 → 100000 stroops) automatically.
 function route(price, description) {
   return {
     accepts: {
       scheme: "exact",
       network: "stellar:testnet",
       payTo: SERVER_ADDRESS,
-      price: { amount: price, asset: USDC_ISSUER },
+      price: price,
       maxTimeoutSeconds: 60,
     },
     description,
@@ -64,7 +66,7 @@ function route(price, description) {
 
 // x402 route configuration (RoutesConfig format)
 const x402Routes = {
-  "POST /api/search": route("0.01", "Search the web using Brave Search"),
+  "POST /api/search": route("0.01", "Search the web using Gemini + Google Search"),
   "POST /api/news": route("0.005", "Get recent news articles"),
   "POST /api/market": route("0.002", "Get crypto market data"),
   "POST /api/code/generate": route("0.01", "Generate code using Gemini AI"),
@@ -108,7 +110,7 @@ app.get("/api/services", (req, res) => {
         name: "web_search",
         endpoint: "/api/search",
         cost: PRICES.search + " USDC",
-        description: "Search the web using Brave Search",
+        description: "Search the web using Gemini + Google Search",
       },
       {
         name: "get_news",
@@ -247,7 +249,7 @@ app.get("/api/status", (req, res) => {
   res.json({
     keys: {
       gemini: !!process.env.GEMINI_API_KEY,
-      brave: !!process.env.BRAVE_API_KEY,
+      search: !!process.env.GEMINI_API_KEY,
       newsapi: !!process.env.NEWS_API_KEY,
       replicate: !!process.env.REPLICATE_API_TOKEN,
     },
