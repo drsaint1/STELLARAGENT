@@ -1,0 +1,30 @@
+{
+  "name": "stellaragent",
+  "version": "1.0.0",
+  "description": "Pay-per-Query AI Research Agent powered by Stellar micropayments",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "keywords": [
+    "stellar",
+    "ai",
+    "agent",
+    "micropayments",
+    "research"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^1.49.0",
+    "@stellar/stellar-sdk": "^15.0.1",
+    "@x402/core": "^2.9.0",
+    "@x402/express": "^2.9.0",
+    "@x402/stellar": "^2.9.0",
+    "axios": "^1.15.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1"
+  }
+}

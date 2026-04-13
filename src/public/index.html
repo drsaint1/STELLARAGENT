@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StellarAgent - AI x402 Micropayment Platform</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --surface: rgba(19,26,43,0.7);
+    --border: #1e2a42;
+    --border-glow: rgba(99,102,241,0.3);
+    --accent: #6366f1;
+    --accent2: #818cf8;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* Star/particle background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.8), transparent),
+      radial-gradient(1px 1px at 25% 50%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1.5px 1.5px at 40% 15%, rgba(129,140,248,0.9), transparent),
+      radial-gradient(1px 1px at 55% 70%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 70% 35%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1.5px 1.5px at 85% 60%, rgba(99,102,241,0.8), transparent),
+      radial-gradient(1px 1px at 15% 80%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1.5px 1.5px at 50% 90%, rgba(129,140,248,0.7), transparent),
+      radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 65% 85%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 80% 25%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1.5px 1.5px at 5% 55%, rgba(99,102,241,0.6), transparent),
+      radial-gradient(1px 1px at 95% 45%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 45% 5%, rgba(255,255,255,0.7), transparent);
+    animation: starTwinkle 8s ease-in-out infinite alternate;
+    z-index: 0;
+    pointer-events: none;
+  }
+  @keyframes starTwinkle {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; position: relative; z-index: 1; }
+  header { text-align: center; margin-bottom: 32px; }
+  header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, #818cf8, #6366f1, #a78bfa, #818cf8);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 4s ease infinite;
+  }
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  header p { color: var(--muted); font-size: 14px; }
+  .protocol-badge {
+    display: inline-block;
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid var(--accent);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--accent2);
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Glassmorphism cards */
+  .card {
+    background: var(--surface);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    animation: cardFadeIn 0.5s ease both;
+  }
+  .card:hover {
+    border-color: var(--border-glow);
+    box-shadow: 0 0 20px rgba(99,102,241,0.08);
+  }
+  .card:nth-child(1) { animation-delay: 0s; }
+  .card:nth-child(2) { animation-delay: 0.05s; }
+  .card:nth-child(3) { animation-delay: 0.1s; }
+  .card:nth-child(4) { animation-delay: 0.15s; }
+  .card:nth-child(5) { animation-delay: 0.2s; }
+  .card:nth-child(6) { animation-delay: 0.25s; }
+  .card:nth-child(7) { animation-delay: 0.3s; }
+  .card:nth-child(8) { animation-delay: 0.35s; }
+
+  @keyframes cardFadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; }
+
+  .input-group { display: flex; gap: 8px; margin-bottom: 12px; }
+  .input-group input[type="text"],
+  .input-group textarea {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    resize: vertical;
+  }
+  .input-group input:focus,
+  .input-group textarea:focus { border-color: var(--accent); }
+
+  .budget-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .budget-row label { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .budget-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--accent);
+    height: 6px;
+  }
+  .budget-val {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 13px;
+    color: var(--accent2);
+    min-width: 80px;
+    text-align: center;
+  }
+
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  button:hover { background: var(--accent2); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-secondary:hover { background: var(--border); }
+
+  .btn-small {
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+
+  .btn-green { background: var(--green); }
+  .btn-green:hover { background: #16a34a; }
+
+  .wallet-actions { display: flex; gap: 8px; margin-bottom: 16px; }
+
+  .wallet-info {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 13px;
+  }
+  .wallet-info .wallet-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .wallet-info .wallet-row:last-child { margin-bottom: 0; }
+  .wallet-info .wallet-label { color: var(--muted); }
+  .wallet-info .wallet-value { color: var(--accent2); word-break: break-all; }
+  .wallet-info .wallet-balance { font-size: 18px; font-weight: 700; color: var(--green); }
+  .wallet-info a { color: var(--accent2); text-decoration: none; }
+  .wallet-info a:hover { text-decoration: underline; }
+
+  /* Agent Type Selector */
+  .agent-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .agent-btn {
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .agent-btn::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2), #a78bfa);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .agent-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    background: rgba(99, 102, 241, 0.05);
+  }
+  .agent-btn:hover::before { opacity: 1; }
+  .agent-btn:hover .agent-icon { transform: scale(1.15); }
+  .agent-btn.active {
+    border-color: var(--accent);
+    background: rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.15);
+  }
+  .agent-btn.active::before { opacity: 1; }
+  .agent-btn .agent-icon { font-size: 28px; margin-bottom: 6px; transition: transform 0.3s ease; }
+  .agent-btn .agent-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .agent-btn .agent-cost { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .agent-desc {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .api-status { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+  .api-dot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .api-dot .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot-green { background: var(--green); }
+  .dot-red { background: var(--red); }
+
+  /* Activity Feed Enhancements */
+  .activity { max-height: 400px; overflow-y: auto; }
+  .event {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    border-radius: 6px;
+    transition: background 0.2s;
+    animation: eventSlideIn 0.3s ease both;
+  }
+  .event:hover { background: rgba(99,102,241,0.04); }
+  .event:last-child { border-bottom: none; }
+  .event-icon { width: 20px; text-align: center; flex-shrink: 0; }
+  .event-body { flex: 1; line-height: 1.5; }
+  .event-body a { color: var(--accent2); text-decoration: none; }
+  .event-body a:hover { text-decoration: underline; }
+  .event-time { color: var(--muted); font-size: 11px; flex-shrink: 0; }
+
+  @keyframes eventSlideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Payment events pulse green */
+  .type-x402_settled, .type-transaction, .type-user_payment {
+    animation: eventSlideIn 0.3s ease both, paymentPulse 1.5s ease;
+  }
+  @keyframes paymentPulse {
+    0% { background: rgba(34,197,94,0.2); }
+    100% { background: transparent; }
+  }
+
+  /* Error events shake */
+  .type-error {
+    animation: eventSlideIn 0.3s ease both, errorShake 0.4s ease;
+  }
+  @keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+
+  .type-thinking .event-icon { color: var(--yellow); }
+  .type-payment .event-icon { color: var(--accent2); }
+  .type-transaction .event-icon { color: var(--green); }
+  .type-api_call .event-icon { color: var(--accent); }
+  .type-data .event-icon { color: var(--green); }
+  .type-error .event-icon { color: var(--red); }
+  .type-budget .event-icon { color: var(--yellow); }
+  .type-wallet .event-icon { color: var(--accent2); }
+  .type-user_payment .event-icon { color: var(--green); }
+  .type-x402_payment_required .event-icon { color: var(--yellow); }
+  .type-x402_payment_signed .event-icon { color: var(--accent2); }
+  .type-x402_settled .event-icon { color: var(--green); }
+
+  /* Report with typing cursor */
+  .report-content {
+    font-size: 14px;
+    line-height: 1.7;
+    word-wrap: break-word;
+    cursor: pointer;
+  }
+  .report-content p { margin: 8px 0; }
+  .report-content ul { padding-left: 20px; margin: 8px 0; }
+  .report-content li { margin: 4px 0; }
+  .report-content h1, .report-content h2, .report-content h3, .report-content h4 {
+    color: var(--accent2);
+  }
+  .report-content strong { color: var(--text); }
+  .report-content em { color: var(--muted); font-style: italic; }
+  .report-content img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 12px 0;
+    border: 1px solid var(--border);
+  }
+  .report-content pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+  .report-content code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+  }
+
+  .report-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--accent2);
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: cursorBlink 0.8s step-end infinite;
+  }
+  @keyframes cursorBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .tx-table { width: 100%; font-size: 12px; border-collapse: collapse; }
+  .tx-table th { text-align: left; color: var(--muted); padding: 8px 4px; border-bottom: 1px solid var(--border); }
+  .tx-table td { padding: 8px 4px; border-bottom: 1px solid var(--border); }
+  .tx-table a { color: var(--accent2); text-decoration: none; }
+  .tx-table a:hover { text-decoration: underline; }
+
+  .stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-value { font-size: 20px; font-weight: 700; color: var(--accent2); }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .hidden { display: none; }
+
+  .wallets { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .wallets a { color: var(--accent2); text-decoration: none; word-break: break-all; }
+
+  /* x402 Payment Pipeline */
+  .pipeline-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pipeline-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 10px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    animation: eventSlideIn 0.3s ease both;
+  }
+  .pipeline-label {
+    font-size: 12px;
+    color: var(--muted);
+    min-width: 100px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pipeline-steps {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    justify-content: space-between;
+  }
+  .pipeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+  }
+  .step-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    transition: all 0.4s ease;
+    position: relative;
+    z-index: 1;
+  }
+  .step-dot.active {
+    border-color: var(--accent);
+    background: rgba(99,102,241,0.2);
+    box-shadow: 0 0 12px rgba(99,102,241,0.4);
+    animation: stepPulse 1.5s ease-in-out infinite;
+  }
+  .step-dot.active-402 {
+    border-color: var(--yellow);
+    background: rgba(234,179,8,0.2);
+    box-shadow: 0 0 12px rgba(234,179,8,0.4);
+    animation: stepPulse402 1.5s ease-in-out infinite;
+  }
+  .step-dot.completed {
+    border-color: var(--green);
+    background: rgba(34,197,94,0.2);
+    box-shadow: 0 0 8px rgba(34,197,94,0.3);
+    animation: none;
+  }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(99,102,241,0.3); }
+    50% { box-shadow: 0 0 18px rgba(99,102,241,0.6); }
+  }
+  @keyframes stepPulse402 {
+    0%, 100% { box-shadow: 0 0 8px rgba(234,179,8,0.3); }
+    50% { box-shadow: 0 0 18px rgba(234,179,8,0.6); }
+  }
+  .step-label {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .step-detail {
+    font-size: 9px;
+    color: var(--accent2);
+    max-width: 70px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pipeline-connector {
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    margin: 0 4px;
+    margin-bottom: 18px;
+    transition: background 0.4s ease, box-shadow 0.4s ease;
+  }
+  .pipeline-connector.lit {
+    background: var(--green);
+    box-shadow: 0 0 6px rgba(34,197,94,0.4);
+  }
+
+  /* Session Summary Card */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .summary-stat {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .summary-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  .summary-value.green { color: var(--green); }
+  .summary-label {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .summary-footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* How x402 Works Explainer */
+  .explainer-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+  }
+  .explainer-toggle h2 { margin-bottom: 0; }
+  .explainer-arrow {
+    font-size: 14px;
+    color: var(--muted);
+    transition: transform 0.3s ease;
+  }
+  .explainer-arrow.open { transform: rotate(180deg); }
+  .explainer-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .explainer-content.open {
+    max-height: 600px;
+  }
+  .explainer-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px 0;
+    flex-wrap: wrap;
+  }
+  .diagram-node {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: center;
+    min-width: 90px;
+  }
+  .diagram-node .node-icon { font-size: 24px; margin-bottom: 4px; }
+  .diagram-node .node-label { font-size: 11px; color: var(--text); font-weight: 600; }
+  .diagram-arrow {
+    font-size: 18px;
+    color: var(--accent2);
+  }
+  .diagram-arrow-label {
+    font-size: 9px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .explainer-points {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+  .explainer-points li {
+    padding: 8px 0;
+    font-size: 13px;
+    color: var(--muted);
+    border-bottom: 1px solid rgba(30,42,66,0.5);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .explainer-points li:last-child { border-bottom: none; }
+  .explainer-links {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+  .explainer-links a {
+    color: var(--accent2);
+    text-decoration: none;
+    font-size: 12px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: border-color 0.2s;
+  }
+  .explainer-links a:hover { border-color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .agent-selector { grid-template-columns: 1fr; }
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>StellarAgent</h1>
+    <p>AI agents with x402 micropayments on Stellar</p>
+    <div class="protocol-badge">x402 Protocol &middot; USDC on Stellar Testnet</div>
+  </header>
+
+  <!-- Wallet Connection Card -->
+  <div class="card" id="walletCard">
+    <h2>Connect Wallet</h2>
+    <div id="walletConnect">
+      <div class="wallet-actions">
+        <button class="btn-secondary" onclick="connectFreighter()">Connect Freighter</button>
+        <button onclick="createTestnetWallet(event)">Create Testnet Wallet</button>
+      </div>
+      <p style="font-size: 12px; color: var(--muted);">Connect your Freighter browser extension or create a testnet wallet to get started.</p>
+    </div>
+    <div id="walletConnected" class="hidden">
+      <div class="wallet-info">
+        <div class="wallet-row">
+          <span class="wallet-label">Address</span>
+          <span class="wallet-value"><a id="walletAddress" href="#" target="_blank"></a></span>
+        </div>
+        <div class="wallet-row">
+          <span class="wallet-label">Balance</span>
+          <span class="wallet-balance" id="walletBalance">0 XLM</span>
+        </div>
+        <div class="wallet-row">
+          <span class="wallet-label">Type</span>
+          <span class="wallet-value" id="walletType">-</span>
+        </div>
+      </div>
+      <div style="margin-top: 10px; display: flex; gap: 8px;">
+        <button class="btn-small btn-secondary" onclick="refreshBalance()">Refresh Balance</button>
+        <button class="btn-small btn-secondary hidden" id="fundbotBtn" onclick="fundWithFriendbot()">Fund with Friendbot</button>
+        <button class="btn-small btn-secondary" onclick="disconnectWallet()">Disconnect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent Type Selector Card -->
+  <div class="card" id="agentCard">
+    <h2>Choose Agent</h2>
+    <div class="agent-selector">
+      <div class="agent-btn active" data-agent="research" onclick="selectAgent('research')">
+        <div class="agent-icon">📚</div>
+        <div class="agent-name">Research</div>
+        <div class="agent-cost">$0.002 - $0.01/call</div>
+      </div>
+      <div class="agent-btn" data-agent="code" onclick="selectAgent('code')">
+        <div class="agent-icon">💻</div>
+        <div class="agent-name">Code</div>
+        <div class="agent-cost">$0.005 - $0.01/call</div>
+      </div>
+      <div class="agent-btn" data-agent="image" onclick="selectAgent('image')">
+        <div class="agent-icon">🎨</div>
+        <div class="agent-name">Image</div>
+        <div class="agent-cost">$0.01 - $0.02/call</div>
+      </div>
+    </div>
+    <div class="agent-desc" id="agentDesc">Search the web, get news, and analyze market data with autonomous research via x402.</div>
+  </div>
+
+  <!-- API Status Card -->
+  <div class="card" id="apiStatusCard">
+    <h2>API Keys & Protocol Status</h2>
+    <div class="api-status" id="apiStatus">
+      <div class="api-dot"><span class="dot dot-red" id="dotGemini"></span> Gemini</div>
+      <div class="api-dot"><span class="dot dot-red" id="dotBrave"></span> Brave Search</div>
+      <div class="api-dot"><span class="dot dot-red" id="dotNews"></span> NewsAPI</div>
+      <div class="api-dot hidden" id="dotReplicateWrap"><span class="dot dot-red" id="dotReplicate"></span> Replicate</div>
+      <div class="api-dot"><span class="dot dot-red" id="dotX402"></span> x402</div>
+    </div>
+  </div>
+
+  <!-- Query Card -->
+  <div class="card" id="inputCard">
+    <h2 id="queryTitle">Research Query</h2>
+    <div class="input-group">
+      <input type="text" id="queryInput" placeholder="e.g. State of AI in healthcare 2026" />
+      <button id="startBtn" onclick="startResearch()" disabled>Connect Wallet First</button>
+    </div>
+    <div class="budget-row">
+      <label>Budget:</label>
+      <input type="range" id="budgetSlider" min="0.05" max="2.00" value="0.50" step="0.05" oninput="updateBudget()" />
+      <div class="budget-val" id="budgetVal">$0.50 USDC</div>
+    </div>
+    <div class="wallets hidden" id="walletInfo"></div>
+  </div>
+
+  <div class="card hidden" id="statsCard">
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value" id="statSpent">$0</div>
+        <div class="stat-label">USDC Spent</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statRemaining">$0</div>
+        <div class="stat-label">USDC Remaining</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statCalls">0</div>
+        <div class="stat-label">API Calls</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statTx">0</div>
+        <div class="stat-label">x402 Payments</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- x402 Payment Pipeline Card -->
+  <div class="card hidden" id="pipelineCard">
+    <h2>x402 Payment Pipeline</h2>
+    <div class="pipeline-container" id="pipelineContainer"></div>
+  </div>
+
+  <div class="card hidden" id="activityCard">
+    <h2>Activity Feed</h2>
+    <div class="activity" id="activityFeed"></div>
+  </div>
+
+  <div class="card hidden" id="reportCard">
+    <h2 id="reportTitle">Report</h2>
+    <div class="report-content" id="reportContent"></div>
+  </div>
+
+  <div class="card hidden" id="txCard">
+    <h2>x402 Transaction Log</h2>
+    <table class="tx-table">
+      <thead>
+        <tr><th>Tool</th><th>Details</th><th>USDC</th><th>TX Hash</th></tr>
+      </thead>
+      <tbody id="txBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Session Summary Card -->
+  <div class="card hidden" id="summaryCard">
+    <h2>Session Summary</h2>
+    <div class="summary-grid">
+      <div class="summary-stat">
+        <div class="summary-value green" id="summarySpent">$0</div>
+        <div class="summary-label">Total USDC Spent</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-value" id="summaryPayments">0</div>
+        <div class="summary-label">x402 Payments Settled</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-value" id="summaryAvg">$0</div>
+        <div class="summary-label">Avg Cost / Call</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-value" id="summaryTime">0s</div>
+        <div class="summary-label">Total Time</div>
+      </div>
+    </div>
+    <div class="summary-footer">Powered by x402 on Stellar</div>
+  </div>
+
+  <!-- How x402 Works Explainer -->
+  <div class="card" id="explainerCard">
+    <div class="explainer-toggle" onclick="toggleExplainer()">
+      <h2>How x402 Works</h2>
+      <span class="explainer-arrow" id="explainerArrow">&#9660;</span>
+    </div>
+    <div class="explainer-content" id="explainerContent">
+      <div class="explainer-diagram">
+        <div class="diagram-node">
+          <div class="node-icon">🤖</div>
+          <div class="node-label">AI Agent</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="diagram-arrow">&#8594;</div>
+          <div class="diagram-arrow-label">HTTP Request</div>
+        </div>
+        <div class="diagram-node">
+          <div class="node-icon">🖥️</div>
+          <div class="node-label">API Server</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="diagram-arrow">&#8592;</div>
+          <div class="diagram-arrow-label">402 + Price</div>
+        </div>
+        <div class="diagram-node">
+          <div class="node-icon">🔐</div>
+          <div class="node-label">Facilitator</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="diagram-arrow">&#8594;</div>
+          <div class="diagram-arrow-label">Settle</div>
+        </div>
+        <div class="diagram-node">
+          <div class="node-icon">⭐</div>
+          <div class="node-label">Stellar</div>
+        </div>
+      </div>
+      <ul class="explainer-points">
+        <li><span>🔒</span> <span><strong>HTTP 402 Standard</strong> — APIs return a 402 Payment Required status with pricing info. The agent pays automatically to unlock data.</span></li>
+        <li><span>⚡</span> <span><strong>Zero Setup</strong> — No API keys, subscriptions, or accounts needed. Just a Stellar wallet and USDC.</span></li>
+        <li><span>💰</span> <span><strong>Sub-Cent Costs</strong> — Micropayments as low as $0.001 per API call. Pay only for what you use.</span></li>
+        <li><span>🤝</span> <span><strong>Facilitator Settlement</strong> — A trusted facilitator verifies payments and settles on Stellar in real-time.</span></li>
+      </ul>
+      <div class="explainer-links">
+        <a href="https://x402.org" target="_blank">x402.org</a>
+        <a href="https://github.com/nicholasreinhart/stellaragent" target="_blank">GitHub</a>
+        <a href="https://stellar.org" target="_blank">Stellar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// Dynamic import so the rest of the app works even if this fails
+let freighterApi = null;
+try {
+  const mod = await import('https://esm.sh/@stellar/freighter-api@6?bundle');
+  freighterApi = mod.default || mod;
+  console.log('freighter-api loaded:', Object.keys(freighterApi));
+} catch (err) {
+  console.warn('freighter-api failed to load (Freighter will be unavailable):', err.message);
+}
+
+// --- State ---
+let userWallet = null;
+let serverPublicKey = null;
+let selectedAgent = 'research';
+let sessionStartTime = null;
+let skipTyping = false;
+
+const AGENT_META = {
+  research: {
+    title: 'Research Query',
+    reportTitle: 'Research Report',
+    placeholder: 'e.g. State of AI in healthcare 2026',
+    desc: 'Search the web, get news, and analyze market data with autonomous research via x402.',
+    btnLabel: (b) => `Pay $${b} USDC & Research`,
+  },
+  code: {
+    title: 'Code Request',
+    reportTitle: 'Code Output',
+    placeholder: 'e.g. Write a Python fibonacci function with memoization',
+    desc: 'Generate code, explain existing code, and search for programming references via x402.',
+    btnLabel: (b) => `Pay $${b} USDC & Code`,
+  },
+  image: {
+    title: 'Image Prompt',
+    reportTitle: 'Image Result',
+    placeholder: 'e.g. A cat astronaut floating above Mars, digital art',
+    desc: 'Generate images, edit existing images, and search for visual references via x402.',
+    btnLabel: (b) => `Pay $${b} USDC & Generate`,
+  },
+};
+
+// --- Agent selector ---
+function selectAgent(type) {
+  selectedAgent = type;
+  document.querySelectorAll('.agent-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.agent === type);
+  });
+  const meta = AGENT_META[type];
+  document.getElementById('agentDesc').textContent = meta.desc;
+  document.getElementById('queryTitle').textContent = meta.title;
+  document.getElementById('queryInput').placeholder = meta.placeholder;
+  document.getElementById('reportTitle').textContent = meta.reportTitle;
+
+  // Show/hide Replicate status for image agent
+  document.getElementById('dotReplicateWrap').classList.toggle('hidden', type !== 'image');
+
+  updateStartButton();
+}
+
+// --- Budget display ---
+function updateBudget() {
+  const val = document.getElementById('budgetSlider').value;
+  document.getElementById('budgetVal').textContent = '$' + parseFloat(val).toFixed(2) + ' USDC';
+  updateStartButton();
+}
+
+function updateStartButton() {
+  const btn = document.getElementById('startBtn');
+  if (!userWallet) {
+    btn.disabled = true;
+    btn.textContent = 'Connect Wallet First';
+  } else {
+    btn.disabled = false;
+    const budget = parseFloat(document.getElementById('budgetSlider').value).toFixed(2);
+    btn.textContent = AGENT_META[selectedAgent].btnLabel(budget);
+  }
+}
+
+// --- API Status ---
+async function loadApiStatus() {
+  try {
+    const resp = await fetch('/api/status');
+    const data = await resp.json();
+    serverPublicKey = data.serverWallet;
+
+    document.getElementById('dotGemini').className = 'dot ' + (data.keys.gemini ? 'dot-green' : 'dot-red');
+    document.getElementById('dotBrave').className = 'dot ' + (data.keys.brave ? 'dot-green' : 'dot-red');
+    document.getElementById('dotNews').className = 'dot ' + (data.keys.newsapi ? 'dot-green' : 'dot-red');
+    document.getElementById('dotReplicate').className = 'dot ' + (data.keys.replicate ? 'dot-green' : 'dot-red');
+    document.getElementById('dotX402').className = 'dot ' + (data.x402 ? 'dot-green' : 'dot-red');
+  } catch (err) {
+    console.error('Failed to load API status:', err);
+  }
+}
+
+// --- Wallet: Freighter ---
+async function connectFreighter() {
+  if (!freighterApi || !freighterApi.isConnected) {
+    alert('Freighter API could not be loaded.\n\n1. Install Freighter from freighter.app\n2. Make sure the extension is enabled\n3. Refresh this page');
+    return;
+  }
+
+  try {
+    const connCheck = await freighterApi.isConnected();
+    if (!connCheck.isConnected) {
+      alert('Freighter wallet not detected.\n\n1. Install from freighter.app\n2. Make sure the extension is enabled\n3. Refresh this page');
+      return;
+    }
+
+    const result = await freighterApi.requestAccess();
+    if (result.error) {
+      alert('Freighter access denied: ' + result.error);
+      return;
+    }
+
+    const publicKey = result.address;
+    if (!publicKey) {
+      alert('Could not get address from Freighter. Please try again.');
+      return;
+    }
+
+    userWallet = { publicKey, type: 'freighter' };
+    showWalletConnected();
+  } catch (err) {
+    alert('Failed to connect Freighter: ' + err.message);
+  }
+}
+
+// --- Wallet: Testnet ---
+async function createTestnetWallet(e) {
+  const btn = e?.target || document.querySelector('#walletConnect button:last-of-type');
+  btn.disabled = true;
+  btn.textContent = 'Creating...';
+  try {
+    const resp = await fetch('/api/wallet/create');
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    userWallet = { publicKey: data.publicKey, secretKey: data.secretKey, type: 'testnet', balance: data.balance };
+    showWalletConnected();
+  } catch (err) {
+    alert('Failed to create wallet: ' + err.message);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Create Testnet Wallet';
+}
+
+function showWalletConnected() {
+  document.getElementById('walletConnect').classList.add('hidden');
+  document.getElementById('walletConnected').classList.remove('hidden');
+
+  const addrEl = document.getElementById('walletAddress');
+  addrEl.textContent = userWallet.publicKey.substring(0, 8) + '...' + userWallet.publicKey.substring(userWallet.publicKey.length - 8);
+  addrEl.href = `https://stellar.expert/explorer/testnet/account/${userWallet.publicKey}`;
+
+  document.getElementById('walletType').textContent = userWallet.type === 'freighter' ? 'Freighter' : 'Testnet (in-memory)';
+
+  if (userWallet.type === 'testnet') {
+    document.getElementById('fundbotBtn').classList.remove('hidden');
+  }
+
+  updateStartButton();
+  refreshBalance();
+}
+
+async function refreshBalance() {
+  if (!userWallet) return;
+  try {
+    const resp = await fetch(`/api/wallet/balance/${userWallet.publicKey}`);
+    const data = await resp.json();
+    document.getElementById('walletBalance').textContent = parseFloat(data.balance).toFixed(2) + ' XLM';
+    if (userWallet) userWallet.balance = data.balance;
+  } catch (err) {
+    console.error('Balance fetch failed:', err);
+  }
+}
+
+async function fundWithFriendbot() {
+  const btn = document.getElementById('fundbotBtn');
+  btn.disabled = true;
+  btn.textContent = 'Funding...';
+  try {
+    const resp = await fetch(`https://friendbot.stellar.org?addr=${userWallet.publicKey}`);
+    if (!resp.ok) throw new Error('Friendbot request failed');
+    await refreshBalance();
+  } catch (err) {
+    alert('Friendbot error: ' + err.message);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Fund with Friendbot';
+}
+
+function disconnectWallet() {
+  userWallet = null;
+  document.getElementById('walletConnect').classList.remove('hidden');
+  document.getElementById('walletConnected').classList.add('hidden');
+  document.getElementById('fundbotBtn').classList.add('hidden');
+  updateStartButton();
+}
+
+// --- Activity Feed ---
+const ICONS = {
+  thinking: '🧠', payment: '💸', transaction: '✅', api_call: '🔌',
+  data: '📊', error: '❌', budget: '⚠️', wallet: '🔑', report: '📝',
+  complete: '🏁', user_payment: '💰',
+  x402_payment_required: '🔒', x402_payment_signed: '🔏', x402_settled: '✅'
+};
+
+let apiCalls = 0;
+let txCount = 0;
+
+function addEvent(data) {
+  const feed = document.getElementById('activityFeed');
+  const div = document.createElement('div');
+  div.className = `event type-${data.type}`;
+  const time = new Date().toLocaleTimeString();
+  let body = data.message || '';
+  if (data.txHash) {
+    const explorerUrl = data.explorerUrl || `https://stellar.expert/explorer/testnet/tx/${data.txHash}`;
+    body += ` <a href="${explorerUrl}" target="_blank">${data.txHash.substring(0, 12)}...</a>`;
+  }
+  div.innerHTML = `<span class="event-icon">${ICONS[data.type] || '•'}</span><span class="event-body">${body}</span><span class="event-time">${time}</span>`;
+  feed.appendChild(div);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function addTxRow(entry) {
+  const tbody = document.getElementById('txBody');
+  const tr = document.createElement('tr');
+  const label = entry.tool || entry.type || 'x402';
+  const details = entry.query || entry.memo || '';
+  const amount = typeof entry.cost === 'number' ? '$' + entry.cost.toFixed(4) : (entry.amount || '?');
+  const hash = entry.txHash || entry.hash || '';
+  const url = entry.explorerUrl || `https://stellar.expert/explorer/testnet/tx/${hash}`;
+  const hashDisplay = hash ? `<a href="${url}" target="_blank">${hash.substring(0, 16)}...</a>` : 'pending';
+  tr.innerHTML = `<td>${label}</td><td>${details}</td><td>${amount}</td><td>${hashDisplay}</td>`;
+  tbody.appendChild(tr);
+}
+
+// --- x402 Payment Pipeline ---
+let pipelineIdCounter = 0;
+const pipelineRows = {};
+const PIPELINE_STEPS = ['Request', '402', 'Sign', 'Settle', 'Data'];
+const STEP_ICONS = { Request: '→', '402': '$', Sign: '✎', Settle: '✓', Data: '◉' };
+
+function createPipelineRow(toolName) {
+  const id = ++pipelineIdCounter;
+  const container = document.getElementById('pipelineContainer');
+  document.getElementById('pipelineCard').classList.remove('hidden');
+
+  const row = document.createElement('div');
+  row.className = 'pipeline-row';
+  row.id = `pipeline-row-${id}`;
+
+  let stepsHtml = `<div class="pipeline-label" title="${toolName}">${toolName}</div><div class="pipeline-steps">`;
+  PIPELINE_STEPS.forEach((step, i) => {
+    stepsHtml += `<div class="pipeline-step"><div class="step-dot" id="dot-${id}-${step}">${STEP_ICONS[step]}</div><div class="step-label">${step}</div><div class="step-detail" id="detail-${id}-${step}"></div></div>`;
+    if (i < PIPELINE_STEPS.length - 1) {
+      stepsHtml += `<div class="pipeline-connector" id="conn-${id}-${i}"></div>`;
+    }
+  });
+  stepsHtml += '</div>';
+  row.innerHTML = stepsHtml;
+  container.appendChild(row);
+
+  pipelineRows[id] = { toolName, currentStep: -1 };
+
+  // Activate the first step
+  advancePipeline(id, 'Request');
+  return id;
+}
+
+function advancePipeline(id, stepName, detail) {
+  const stepIndex = PIPELINE_STEPS.indexOf(stepName);
+  if (stepIndex === -1) return;
+
+  const row = pipelineRows[id];
+  if (!row) return;
+
+  // Complete all previous steps
+  for (let i = 0; i <= stepIndex; i++) {
+    const dotEl = document.getElementById(`dot-${id}-${PIPELINE_STEPS[i]}`);
+    if (!dotEl) continue;
+    if (i < stepIndex) {
+      dotEl.className = 'step-dot completed';
+      // Light connector before this step
+      if (i > 0) {
+        const conn = document.getElementById(`conn-${id}-${i - 1}`);
+        if (conn) conn.className = 'pipeline-connector lit';
+      }
+    } else {
+      // Current step: active
+      dotEl.className = stepName === '402' ? 'step-dot active-402' : 'step-dot active';
+      if (i > 0) {
+        const conn = document.getElementById(`conn-${id}-${i - 1}`);
+        if (conn) conn.className = 'pipeline-connector lit';
+      }
+    }
+  }
+
+  if (detail) {
+    const detailEl = document.getElementById(`detail-${id}-${stepName}`);
+    if (detailEl) detailEl.textContent = detail;
+  }
+
+  row.currentStep = stepIndex;
+}
+
+function completePipeline(id) {
+  const row = pipelineRows[id];
+  if (!row) return;
+
+  PIPELINE_STEPS.forEach((step, i) => {
+    const dotEl = document.getElementById(`dot-${id}-${step}`);
+    if (dotEl) dotEl.className = 'step-dot completed';
+    if (i < PIPELINE_STEPS.length - 1) {
+      const conn = document.getElementById(`conn-${id}-${i}`);
+      if (conn) conn.className = 'pipeline-connector lit';
+    }
+  });
+}
+
+// Track which pipeline row is current for each tool call
+let currentPipelineId = null;
+
+// --- Count-Up Animation ---
+function animateCountUp(element, target, prefix = '', suffix = '', duration = 1200) {
+  const start = performance.now();
+  const initial = 0;
+
+  function update(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    // Ease-out cubic
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = initial + (target - initial) * eased;
+
+    if (suffix === 's') {
+      element.textContent = prefix + current.toFixed(1) + suffix;
+    } else if (target < 0.01) {
+      element.textContent = prefix + current.toFixed(6) + suffix;
+    } else if (target < 1) {
+      element.textContent = prefix + current.toFixed(4) + suffix;
+    } else {
+      element.textContent = prefix + current.toFixed(2) + suffix;
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    }
+  }
+  requestAnimationFrame(update);
+}
+
+// --- Typing Effect for Reports ---
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function typeReport(html, container) {
+  skipTyping = false;
+  container.innerHTML = '';
+
+  // Create a temp element to parse the HTML
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+
+  // Get the text content and the full HTML
+  const fullHtml = temp.innerHTML;
+
+  // We'll type out character by character using a simplified approach
+  // Split by code blocks — insert those instantly
+  const parts = fullHtml.split(/(<pre>[\s\S]*?<\/pre>)/g);
+
+  const cursor = document.createElement('span');
+  cursor.className = 'report-cursor';
+
+  let outputHtml = '';
+
+  for (const part of parts) {
+    if (skipTyping) {
+      outputHtml += part;
+      continue;
+    }
+
+    if (part.startsWith('<pre>')) {
+      // Insert code blocks instantly
+      outputHtml += part;
+      container.innerHTML = outputHtml;
+      container.appendChild(cursor);
+      await sleep(100);
+    } else {
+      // Type character by character, but skip HTML tags
+      let inTag = false;
+      for (let i = 0; i < part.length; i++) {
+        if (skipTyping) {
+          outputHtml += part.slice(i);
+          break;
+        }
+        const ch = part[i];
+        if (ch === '<') inTag = true;
+        if (inTag) {
+          outputHtml += ch;
+          if (ch === '>') {
+            inTag = false;
+            container.innerHTML = outputHtml;
+            container.appendChild(cursor);
+          }
+        } else {
+          outputHtml += ch;
+          container.innerHTML = outputHtml;
+          container.appendChild(cursor);
+          await sleep(12);
+        }
+      }
+    }
+  }
+
+  // Remove cursor when done
+  container.innerHTML = outputHtml;
+}
+
+// --- Explainer toggle ---
+function toggleExplainer() {
+  const content = document.getElementById('explainerContent');
+  const arrow = document.getElementById('explainerArrow');
+  content.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+// --- Simple markdown to HTML ---
+function mdToHtml(text) {
+  if (!text) return '';
+  let html = text;
+
+  // Escape HTML
+  html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  // Code blocks (``` ... ```)
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (m, lang, code) => {
+    return `<pre><code class="language-${lang || 'text'}">${code}</code></pre>`;
+  });
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  // Headers
+  html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2 style="font-size:16px;margin:16px 0 8px;">$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1 style="font-size:18px;margin:16px 0 8px;">$1</h1>');
+
+  // Bold and italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+  // Unordered lists
+  html = html.replace(/^[\-\*] (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
+
+  // Ordered lists
+  html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+
+  // Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+  // Image URLs
+  html = html.replace(/(https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp|svg))/gi, '<img src="$1" alt="Generated image" />');
+  html = html.replace(/(https?:\/\/replicate\.delivery\/[^\s<]+)/gi, (url) => {
+    if (!url.match(/\.(png|jpg|jpeg|gif|webp|svg)/i)) {
+      return `<img src="${url}" alt="Generated image" />`;
+    }
+    return url;
+  });
+
+  // Line breaks (preserve double newlines as paragraphs)
+  html = html.replace(/\n\n/g, '</p><p>');
+  html = html.replace(/\n/g, '<br>');
+  html = '<p>' + html + '</p>';
+
+  // Clean up empty tags
+  html = html.replace(/<p><\/p>/g, '');
+  html = html.replace(/<p>(<h[1-4])/g, '$1');
+  html = html.replace(/(<\/h[1-4]>)<\/p>/g, '$1');
+  html = html.replace(/<p>(<pre)/g, '$1');
+  html = html.replace(/(<\/pre>)<\/p>/g, '$1');
+  html = html.replace(/<p>(<ul)/g, '$1');
+  html = html.replace(/(<\/ul>)<\/p>/g, '$1');
+
+  return html;
+}
+
+function formatReport(report, agentType) {
+  return mdToHtml(report);
+}
+
+// --- Main Agent Flow ---
+async function startResearch() {
+  const query = document.getElementById('queryInput').value.trim();
+  if (!query || !userWallet) return;
+
+  const budget = parseFloat(document.getElementById('budgetSlider').value);
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true;
+  btn.textContent = 'Initializing x402 agent...';
+
+  sessionStartTime = Date.now();
+  skipTyping = false;
+
+  // Reset & show panels
+  document.getElementById('activityFeed').innerHTML = '';
+  document.getElementById('txBody').innerHTML = '';
+  document.getElementById('reportContent').innerHTML = '';
+  document.getElementById('pipelineContainer').innerHTML = '';
+  pipelineIdCounter = 0;
+  currentPipelineId = null;
+  apiCalls = 0;
+  txCount = 0;
+
+  ['statsCard', 'activityCard', 'pipelineCard'].forEach(id => document.getElementById(id).classList.remove('hidden'));
+  ['reportCard', 'txCard', 'summaryCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
+
+  document.getElementById('statSpent').textContent = '$0';
+  document.getElementById('statRemaining').textContent = '$' + budget.toFixed(2);
+  document.getElementById('statCalls').textContent = '0';
+  document.getElementById('statTx').textContent = '0';
+
+  // Step 1: Create agent wallet
+  let agentWallet;
+  try {
+    addEvent({ type: 'wallet', message: `Creating ${selectedAgent} agent wallet for x402...` });
+    const walletResp = await fetch('/api/wallet/create');
+    agentWallet = await walletResp.json();
+    if (agentWallet.error) throw new Error(agentWallet.error);
+    addEvent({
+      type: 'wallet',
+      message: `Agent wallet created: ${agentWallet.publicKey.substring(0, 12)}... (x402-enabled)`,
+    });
+  } catch (err) {
+    addEvent({ type: 'error', message: 'Failed to create agent wallet: ' + err.message });
+    btn.disabled = false;
+    updateStartButton();
+    return;
+  }
+
+  // Step 2: Start agent with x402 payment flow
+  const meta = AGENT_META[selectedAgent];
+  btn.textContent = `Running ${selectedAgent} agent (x402)...`;
+
+  addEvent({ type: 'thinking', message: `Starting x402 payment flow for ${selectedAgent} agent...` });
+
+  try {
+    const resp = await fetch('/api/research', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        budget,
+        agentType: selectedAgent,
+        agentWalletKeys: { publicKey: agentWallet.publicKey, secretKey: agentWallet.secretKey },
+      }),
+    });
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const payload = line.slice(6).trim();
+        if (payload === '[DONE]') continue;
+
+        let data;
+        try { data = JSON.parse(payload); } catch { continue; }
+
+        if (data.type === 'wallet') {
+          const wi = document.getElementById('walletInfo');
+          wi.classList.remove('hidden');
+          wi.innerHTML = `Agent: <a href="${data.agentWallet.explorerUrl}" target="_blank">${data.agentWallet.publicKey.substring(0, 16)}...</a> | Server: <a href="${data.serverWallet.explorerUrl}" target="_blank">${data.serverWallet.publicKey.substring(0, 16)}...</a> | Protocol: x402`;
+        }
+
+        if (data.type === 'transaction') {
+          txCount++;
+          document.getElementById('statTx').textContent = txCount;
+          addTxRow(data);
+          document.getElementById('txCard').classList.remove('hidden');
+        }
+
+        // Pipeline: api_call creates a new row
+        if (data.type === 'api_call') {
+          apiCalls++;
+          document.getElementById('statCalls').textContent = apiCalls;
+          const toolName = data.tool || data.message?.substring(0, 20) || `Call #${apiCalls}`;
+          currentPipelineId = createPipelineRow(toolName);
+        }
+
+        // Pipeline: x402 events advance the pipeline
+        if (data.type === 'x402_payment_required' && currentPipelineId) {
+          advancePipeline(currentPipelineId, '402');
+        }
+        if (data.type === 'x402_payment_signed' && currentPipelineId) {
+          const costDetail = data.cost ? `$${data.cost}` : '';
+          advancePipeline(currentPipelineId, 'Sign', costDetail);
+        }
+        if (data.type === 'x402_settled' && currentPipelineId) {
+          const hashDetail = data.txHash ? data.txHash.substring(0, 8) + '...' : '';
+          advancePipeline(currentPipelineId, 'Settle', hashDetail);
+        }
+        if (data.type === 'data' && currentPipelineId) {
+          advancePipeline(currentPipelineId, 'Data');
+          const pid = currentPipelineId;
+          setTimeout(() => completePipeline(pid), 600);
+        }
+
+        if (data.type === 'complete') {
+          const totalSpent = typeof data.totalSpent === 'number' ? data.totalSpent : parseFloat(data.totalSpent) || 0;
+          const remaining = typeof data.remainingBudget === 'number' ? data.remainingBudget : parseFloat(data.remainingBudget) || 0;
+
+          // Animate stats count-up
+          animateCountUp(document.getElementById('statSpent'), totalSpent, '$');
+          animateCountUp(document.getElementById('statRemaining'), remaining, '$');
+
+          // Type out report
+          const reportEl = document.getElementById('reportContent');
+          const reportHtml = formatReport(data.report, selectedAgent);
+          document.getElementById('reportCard').classList.remove('hidden');
+          typeReport(reportHtml, reportEl);
+
+          // Click to skip typing
+          reportEl.addEventListener('click', () => { skipTyping = true; }, { once: true });
+
+          if (data.transactionLog?.length) {
+            document.getElementById('txCard').classList.remove('hidden');
+          }
+
+          // Session Summary
+          const elapsed = ((Date.now() - sessionStartTime) / 1000);
+          const avgCost = apiCalls > 0 ? totalSpent / apiCalls : 0;
+
+          document.getElementById('summaryCard').classList.remove('hidden');
+          animateCountUp(document.getElementById('summarySpent'), totalSpent, '$');
+          animateCountUp(document.getElementById('summaryPayments'), txCount);
+          animateCountUp(document.getElementById('summaryAvg'), avgCost, '$');
+          animateCountUp(document.getElementById('summaryTime'), elapsed, '', 's');
+        }
+
+        addEvent(data);
+      }
+    }
+  } catch (err) {
+    addEvent({ type: 'error', message: 'Connection error: ' + err.message });
+  }
+
+  btn.disabled = false;
+  updateStartButton();
+  refreshBalance();
+}
+
+// --- Wire up event listeners ---
+document.getElementById('queryInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') startResearch();
+});
+document.getElementById('budgetSlider').addEventListener('input', updateStartButton);
+
+// Expose functions to onclick handlers in HTML
+window.connectFreighter = connectFreighter;
+window.createTestnetWallet = createTestnetWallet;
+window.startResearch = startResearch;
+window.updateBudget = updateBudget;
+window.refreshBalance = refreshBalance;
+window.fundWithFriendbot = fundWithFriendbot;
+window.disconnectWallet = disconnectWallet;
+window.selectAgent = selectAgent;
+window.toggleExplainer = toggleExplainer;
+
+// Init
+loadApiStatus();
+updateStartButton();
+</script>
+</body>
+</html>
