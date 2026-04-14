@@ -291,7 +291,7 @@ app.post("/api/transaction/submit", async (req, res) => {
 
 // --- Main agent endpoint ---
 app.post("/api/research", async (req, res) => {
-  const { query, budget = 0.50, agentWalletKeys, agentType = "research" } = req.body;
+  const { query, budget = 0.10, agentWalletKeys, agentType = "research" } = req.body;
   if (!query) {
     return res.status(400).json({ error: "Query is required" });
   }

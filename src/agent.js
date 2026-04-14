@@ -11,8 +11,7 @@ const AGENT_CONFIGS = {
         functionDeclarations: [
           {
             name: "web_search",
-            description:
-              "Search the web for information on any topic. Costs $0.01 USDC per query. Use for general research, finding recent info, or exploring a topic broadly.",
+            description: "Search the web for information on any topic. Use for general research, finding recent info, or exploring a topic broadly.",
             parameters: {
               type: "object",
               properties: {
@@ -23,8 +22,7 @@ const AGENT_CONFIGS = {
           },
           {
             name: "get_news",
-            description:
-              "Get recent news articles on a topic. Costs $0.005 USDC per query. Use for current events, recent developments, or trending stories.",
+            description: "Get recent news articles on a topic. Use for current events, recent developments, or trending stories.",
             parameters: {
               type: "object",
               properties: {
@@ -38,15 +36,13 @@ const AGENT_CONFIGS = {
           },
           {
             name: "get_market_data",
-            description:
-              "Get financial/crypto market data for a coin or token. Costs $0.002 USDC per query. Use for price data, market caps, and crypto information.",
+            description: "Get financial and crypto market data for a coin or token. Use for price data, market caps, and crypto information.",
             parameters: {
               type: "object",
               properties: {
                 query: {
                   type: "string",
-                  description:
-                    "The cryptocurrency or token name to look up (e.g. 'bitcoin', 'ethereum', 'stellar')",
+                  description: "The cryptocurrency or token name to look up (e.g. 'bitcoin', 'ethereum', 'stellar')",
                 },
               },
               required: ["query"],
@@ -55,24 +51,15 @@ const AGENT_CONFIGS = {
         ],
       },
     ],
-    systemPrompt: (budget) =>
-      `You are StellarAgent, an autonomous AI research agent using the x402 payment protocol with USDC stablecoin on Stellar testnet.
+    systemPrompt: () =>
+      `You are a research assistant. When the user asks a question, you MUST use your tools to find information before responding.
 
-CRITICAL: Your budget is $${budget} USDC. All costs are in USDC (NOT XLM). You have MORE than enough budget to call tools. ALWAYS call tools to research the user's query - never refuse due to budget concerns.
-
-Tool costs (all in USDC, NOT XLM):
-- web_search: $0.01 USDC per query - general web search
-- get_news: $0.005 USDC per query - recent news articles
-- get_market_data: $0.002 USDC per query - crypto/financial data
-
-Instructions:
-1. Analyze the research question carefully
-2. ALWAYS call at least one tool to research the query - do NOT just respond with text
-3. Make targeted, specific queries to get the most value
-4. After gathering enough data, synthesize a comprehensive research report
-5. Include citations/sources in your report
-
-Budget: $${budget} USDC. Each tool call costs at most $0.01 USDC, so you can make at least ${Math.floor(budget / 0.01)} calls.`,
+INSTRUCTIONS:
+1. Call web_search and get_news to gather information about the user's topic
+2. Call get_market_data if the topic involves cryptocurrency or finance
+3. Use at least 2 different tools before writing your final answer
+4. After gathering data, write a comprehensive research report with sources
+5. NEVER respond without calling tools first — always search first, then answer`,
   },
 
   code: {
@@ -81,15 +68,13 @@ Budget: $${budget} USDC. Each tool call costs at most $0.01 USDC, so you can mak
         functionDeclarations: [
           {
             name: "generate_code",
-            description:
-              "Generate code in any programming language. Costs $0.01 USDC. Use when the user wants you to write new code, functions, or programs.",
+            description: "Generate code in any programming language. Use when the user wants you to write new code, functions, or programs.",
             parameters: {
               type: "object",
               properties: {
                 language: {
                   type: "string",
-                  description:
-                    "The programming language (e.g. python, javascript, rust)",
+                  description: "The programming language (e.g. python, javascript, rust)",
                 },
                 description: {
                   type: "string",
@@ -101,8 +86,7 @@ Budget: $${budget} USDC. Each tool call costs at most $0.01 USDC, so you can mak
           },
           {
             name: "explain_code",
-            description:
-              "Explain existing code and suggest improvements. Costs $0.005 USDC. Use when analyzing or reviewing code.",
+            description: "Explain existing code and suggest improvements. Use when analyzing or reviewing code.",
             parameters: {
               type: "object",
               properties: {
@@ -120,8 +104,7 @@ Budget: $${budget} USDC. Each tool call costs at most $0.01 USDC, so you can mak
           },
           {
             name: "web_search",
-            description:
-              "Search the web for programming docs, examples, or references. Costs $0.01 USDC per query.",
+            description: "Search the web for programming docs, examples, or references.",
             parameters: {
               type: "object",
               properties: {
@@ -133,24 +116,15 @@ Budget: $${budget} USDC. Each tool call costs at most $0.01 USDC, so you can mak
         ],
       },
     ],
-    systemPrompt: (budget) =>
-      `You are StellarAgent, an autonomous AI coding assistant using the x402 payment protocol with USDC stablecoin on Stellar testnet.
+    systemPrompt: () =>
+      `You are a coding assistant. When the user asks for code, you MUST use your tools.
 
-CRITICAL: Your budget is $${budget} USDC. All costs are in USDC (NOT XLM). You have MORE than enough budget to call any tool. ALWAYS call tools when the user asks you to do something - never refuse due to budget concerns.
-
-Tool costs (all in USDC, NOT XLM):
-- generate_code: $0.01 USDC - generate code in any language
-- explain_code: $0.005 USDC - explain code and suggest improvements
-- web_search: $0.01 USDC - search for docs, examples, or references
-
-Instructions:
-1. Understand the coding request carefully
-2. ALWAYS call generate_code when asked to write code - do NOT just respond with text
-3. Use explain_code if the user provides code to review
-4. Use web_search to look up docs or examples when needed
-5. Present the final code with clear explanations
-
-Budget: $${budget} USDC. Each tool call costs at most $0.01 USDC, so you can make at least ${Math.floor(budget / 0.01)} calls.`,
+INSTRUCTIONS:
+1. Call generate_code when asked to write code
+2. Call explain_code when asked to review or explain code
+3. Call web_search to look up documentation or examples if needed
+4. NEVER respond without calling at least one tool first
+5. Present the final code with clear explanations`,
   },
 
   image: {
@@ -159,20 +133,17 @@ Budget: $${budget} USDC. Each tool call costs at most $0.01 USDC, so you can mak
         functionDeclarations: [
           {
             name: "generate_image",
-            description:
-              "Generate an image from a text description. Costs $0.02 USDC. Use to create new images, artwork, illustrations, etc.",
+            description: "Generate an image from a text description. Use to create new images, artwork, illustrations, etc.",
             parameters: {
               type: "object",
               properties: {
                 prompt: {
                   type: "string",
-                  description:
-                    "Detailed description of the image to generate",
+                  description: "Detailed description of the image to generate",
                 },
                 style: {
                   type: "string",
-                  description:
-                    "Optional style (e.g. photorealistic, cartoon, oil painting, pixel art)",
+                  description: "Optional style (e.g. photorealistic, cartoon, oil painting, pixel art)",
                 },
               },
               required: ["prompt"],
@@ -180,8 +151,7 @@ Budget: $${budget} USDC. Each tool call costs at most $0.01 USDC, so you can mak
           },
           {
             name: "edit_image",
-            description:
-              "Edit an existing image with instructions. Costs $0.015 USDC. Use to modify, transform, or enhance an existing image.",
+            description: "Edit an existing image with instructions. Use to modify, transform, or enhance an existing image.",
             parameters: {
               type: "object",
               properties: {
@@ -199,8 +169,7 @@ Budget: $${budget} USDC. Each tool call costs at most $0.01 USDC, so you can mak
           },
           {
             name: "web_search",
-            description:
-              "Search the web for image references or inspiration. Costs $0.01 USDC per query.",
+            description: "Search the web for image references or inspiration.",
             parameters: {
               type: "object",
               properties: {
@@ -212,24 +181,15 @@ Budget: $${budget} USDC. Each tool call costs at most $0.01 USDC, so you can mak
         ],
       },
     ],
-    systemPrompt: (budget) =>
-      `You are StellarAgent, an autonomous AI image creation assistant using the x402 payment protocol with USDC stablecoin on Stellar testnet.
+    systemPrompt: () =>
+      `You are an image creation assistant. When the user asks for an image, you MUST use your tools.
 
-CRITICAL: Your budget is $${budget} USDC. All costs are in USDC (NOT XLM). You have MORE than enough budget to call tools. ALWAYS call tools when the user asks for an image - never refuse due to budget concerns.
-
-Tool costs (all in USDC, NOT XLM):
-- generate_image: $0.02 USDC - generate an image from a text prompt
-- edit_image: $0.015 USDC - edit/modify an existing image
-- web_search: $0.01 USDC - search for references or inspiration
-
-Instructions:
-1. Understand the image request carefully
-2. ALWAYS call generate_image when asked to create an image - do NOT just respond with text
-3. Craft a detailed, descriptive prompt for the best results
-4. Use web_search if you need reference or inspiration first
-5. Present the results with the image and description
-
-Budget: $${budget} USDC. Each tool call costs at most $0.02 USDC, so you can make at least ${Math.floor(budget / 0.02)} calls.`,
+INSTRUCTIONS:
+1. Call generate_image when asked to create an image
+2. Craft detailed, descriptive prompts for the best results
+3. Call web_search if you need reference or inspiration first
+4. NEVER respond without calling at least one tool first
+5. Present the results with the image and description`,
   },
 };
 
@@ -380,7 +340,7 @@ export async function runAgent(
   });
   const httpClient = new x402HTTPClient(client);
 
-  const systemPrompt = config.systemPrompt(budget);
+  const systemPrompt = config.systemPrompt();
 
   const contents = [{ role: "user", parts: [{ text: query }] }];
 
@@ -391,7 +351,14 @@ export async function runAgent(
 
   const MAX_TURNS = 10;
 
+  let hasCalledTools = false;
+
   for (let turn = 0; turn < MAX_TURNS; turn++) {
+    // Force tool calling on first turns until we've actually used tools.
+    // mode: "ANY" forces Gemini to call a function (cannot respond with text).
+    // After tools have been called and budget is spent, switch to "AUTO" so it can write the report.
+    const toolMode = (!hasCalledTools && spent < budget) ? "ANY" : "AUTO";
+
     let response;
     try {
       response = await ai.models.generateContent({
@@ -399,10 +366,9 @@ export async function runAgent(
         contents,
         config: {
           tools: config.tools,
-          systemInstruction:
-            systemPrompt +
-            `\n\nBudget spent so far: $${spent.toFixed(4)} USDC. Remaining: $${(budget - spent).toFixed(4)} USDC.`,
-          temperature: 0.7,
+          toolConfig: { functionCallingConfig: { mode: toolMode } },
+          systemInstruction: systemPrompt,
+          temperature: 0.3,
         },
       });
     } catch (err) {
@@ -452,6 +418,21 @@ export async function runAgent(
         continue;
       }
 
+      // Server-side budget guard — skip tool if budget exhausted
+      if (spent >= budget) {
+        onEvent({
+          type: "budget",
+          message: `Budget exhausted ($${spent.toFixed(4)}/$${budget.toFixed(2)} USDC) — skipping ${fc.name}`,
+        });
+        functionResponses.push({
+          functionResponse: {
+            name: fc.name,
+            response: { output: "Budget exhausted. Please summarize the data you already have." },
+          },
+        });
+        continue;
+      }
+
       onEvent({
         type: "api_call",
         message: `Calling ${fc.name} via x402 protocol...`,
@@ -487,6 +468,7 @@ export async function runAgent(
       }
 
       spent += cost;
+      hasCalledTools = true;
 
       // Check budget after payment
       if (spent > budget) {
