@@ -336,6 +336,11 @@ app.post("/api/research", async (req, res) => {
     protocol: "x402",
   });
 
+  // Derive base URL from request — works on Vercel, localhost, etc.
+  const protocol = req.headers["x-forwarded-proto"] || req.protocol || "http";
+  const host = req.headers["x-forwarded-host"] || req.headers.host;
+  const baseUrl = `${protocol}://${host}`;
+
   try {
     const result = await runAgent(
       query,
@@ -343,6 +348,7 @@ app.post("/api/research", async (req, res) => {
       agentWallet,
       SERVER_ADDRESS,
       sendEvent,
+      baseUrl,
       agentType
     );
 

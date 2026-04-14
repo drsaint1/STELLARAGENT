@@ -231,8 +231,7 @@ const TOOL_ENDPOINTS = {
  * 2. Create payment payload using ExactStellarScheme
  * 3. Retry with PAYMENT-SIGNATURE header → get 200 + data
  */
-async function x402ApiCall(endpoint, body, httpClient, onEvent) {
-  const baseUrl = `http://localhost:${process.env.PORT || 3000}`;
+async function x402ApiCall(endpoint, body, httpClient, onEvent, baseUrl) {
   const url = `${baseUrl}${endpoint}`;
   const { default: axios } = await import("axios");
 
@@ -324,6 +323,7 @@ export async function runAgent(
   agentWallet,
   serverPublicKey,
   onEvent,
+  baseUrl,
   agentType = "research"
 ) {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -352,12 +352,12 @@ export async function runAgent(
   const MAX_TURNS = 10;
 
   let hasCalledTools = false;
+  let consecutiveErrors = 0;
 
   for (let turn = 0; turn < MAX_TURNS; turn++) {
-    // Force tool calling on first turns until we've actually used tools.
-    // mode: "ANY" forces Gemini to call a function (cannot respond with text).
-    // After tools have been called and budget is spent, switch to "AUTO" so it can write the report.
-    const toolMode = (!hasCalledTools && spent < budget) ? "ANY" : "AUTO";
+    // Force tool calling until we've used tools successfully.
+    // Switch to AUTO after success, budget exhaustion, or 3 consecutive errors.
+    const toolMode = (!hasCalledTools && spent < budget && consecutiveErrors < 3) ? "ANY" : "AUTO";
 
     let response;
     try {
@@ -448,12 +448,14 @@ export async function runAgent(
           route.endpoint,
           route.bodyFn(fc.args || {}),
           httpClient,
-          onEvent
+          onEvent,
+          baseUrl
         );
         apiResult = result.data;
         cost = result.cost;
         txHash = result.txHash;
       } catch (err) {
+        consecutiveErrors++;
         onEvent({
           type: "error",
           message: `x402 payment failed for ${fc.name}: ${err.message}`,
@@ -461,7 +463,7 @@ export async function runAgent(
         functionResponses.push({
           functionResponse: {
             name: fc.name,
-            response: { error: `x402 payment failed: ${err.message}` },
+            response: { error: `Tool call failed: ${err.message}. Please write your best answer with whatever information you have.` },
           },
         });
         continue;
@@ -469,6 +471,7 @@ export async function runAgent(
 
       spent += cost;
       hasCalledTools = true;
+      consecutiveErrors = 0;
 
       // Check budget after payment
       if (spent > budget) {
